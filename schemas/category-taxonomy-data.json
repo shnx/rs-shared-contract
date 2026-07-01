@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Hardware",
+    "icon": "cpu",
+    "color": "#3B82F6",
+    "keywords": ["robot", "motor", "arduino", "raspberry", "sensor", "servo", "circuit", "electronic", "component", "3d print", "filament", "metal", "prototype", "parts", "wire", "board", "battery", "hardware"],
+    "subCategories": [
+      { "name": "Components", "keywords": ["robot", "motor", "arduino", "raspberry", "sensor", "servo", "circuit", "electronic", "component", "wire", "board", "battery"] },
+      { "name": "Prototyping", "keywords": ["3d print", "filament", "metal", "prototype", "parts", "hardware"] }
+    ]
+  },
+  {
+    "name": "Software",
+    "icon": "laptopcomputer",
+    "color": "#8B5CF6",
+    "keywords": ["license", "subscription", "saas", "software", "hosting", "domain", "cloud", "api", "pro plan", "plan", "stackblitz", "github", "openai", "claude", "ai model", "figma", "notion", "subscription time", "tool"],
+    "subCategories": [
+      { "name": "Subscriptions", "keywords": ["license", "subscription", "saas", "pro plan", "plan", "subscription time", "tool", "stackblitz", "github", "openai", "claude", "ai model", "figma", "notion"] },
+      { "name": "Infrastructure", "keywords": ["hosting", "domain", "cloud", "api", "software"] }
+    ]
+  },
+  {
+    "name": "Personnel",
+    "icon": "person.2.fill",
+    "color": "#6366F1",
+    "keywords": ["internship", "intern", "trainee", "salary", "wage", "payroll", "stipend", "development", "coding", "programming", "dev", "engineering"],
+    "subCategories": [
+      { "name": "Internship", "keywords": ["internship", "intern", "trainee"] },
+      { "name": "Salaries", "keywords": ["salary", "wage", "payroll", "stipend"] },
+      { "name": "Development", "keywords": ["development", "coding", "programming", "dev", "engineering"] }
+    ]
+  },
+  {
+    "name": "Operations",
+    "icon": "gearshape.fill",
+    "color": "#10B981",
+    "keywords": ["ads", "advert", "marketing", "promo", "branding", "campaign", "taxi", "uber", "careem", "flight", "hotel", "fuel", "petrol", "transport", "mileage", "restaurant", "cafe", "coffee", "lunch", "meal", "food", "catering", "snack", "paper", "pen", "stationery", "printer", "ink", "furniture", "desk", "supplies"],
+    "subCategories": [
+      { "name": "Marketing", "keywords": ["ads", "advert", "marketing", "promo", "branding", "campaign"] },
+      { "name": "Travel", "keywords": ["taxi", "uber", "careem", "flight", "hotel", "fuel", "petrol", "transport", "mileage"] },
+      { "name": "Food", "keywords": ["restaurant", "cafe", "coffee", "lunch", "meal", "food", "catering", "snack"] },
+      { "name": "Office", "keywords": ["paper", "pen", "stationery", "printer", "ink", "furniture", "desk", "supplies"] }
+    ]
+  },
+  {
+    "name": "Fees",
+    "icon": "creditcard.fill",
+    "color": "#64748B",
+    "keywords": ["fee", "bank", "commission", "charge", "mastercard", "visa"],
+    "subCategories": [
+      { "name": "Bank Fees", "keywords": ["fee", "bank", "commission", "charge"] },
+      { "name": "Card Payments", "keywords": ["mastercard", "visa"] }
+    ]
+  },
+  {
+    "name": "Funding",
+    "icon": "banknote.fill",
+    "color": "#059669",
+    "keywords": ["fund", "grant", "disbursement", "installment", "payment received"],
+    "subCategories": [
+      { "name": "Grants", "keywords": ["fund", "grant", "disbursement"] },
+      { "name": "Installments", "keywords": ["installment", "payment received"] }
+    ]
+  }
+]

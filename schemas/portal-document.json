@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/portal-document.json",
+  "title": "PortalDocument",
+  "description": "An uploaded document (PDF/image) linked to a transaction. Stored in 'documents' (web) and 'ady_documents' (iOS).",
+  "type": "object",
+  "properties": {
+    "projectId": { "type": ["string", "null"] },
+    "fileName": { "type": ["string", "null"] },
+    "fileType": { "type": ["string", "null"], "description": "MIME type, e.g. application/pdf, image/jpeg" },
+    "fileSize": { "type": ["number", "string", "null"], "description": "May be string or Int" },
+    "category": { "type": ["string", "null"] },
+    "base64Data": { "type": ["string", "null"], "description": "Raw file content, base64-encoded" },
+    "extractedText": { "type": ["string", "null"], "description": "OCR text if available" },
+    "linkedTransactionId": { "type": ["string", "null"], "description": "THE link to a transaction" },
+    "uploadedBy": { "type": ["string", "null"] },
+    "uploadedAt": {
+      "description": "Upload timestamp. May be Firestore Timestamp, string, epoch, or map.",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object" },
+        { "type": "null" }
+      ]
+    }
+  }
+}

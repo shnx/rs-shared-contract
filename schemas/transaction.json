@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/transaction.json",
+  "title": "Transaction",
+  "description": "A financial transaction in the ADY project. Stored in 'transactions' (web) and 'ady_transactions' (iOS).",
+  "type": "object",
+  "required": ["projectId", "type", "amount", "currency", "date"],
+  "properties": {
+    "projectId": { "type": "string", "description": "ADY project id — REQUIRED for scoping" },
+    "storeId": { "type": ["string", "null"], "description": "Legacy" },
+    "type": {
+      "type": "string",
+      "enum": ["cost", "revenue", "payment", "bill", "check"],
+      "description": "Transaction type. cost/bill = expense, revenue/payment/check = income"
+    },
+    "category": { "type": ["string", "null"], "description": "Free text or 'Broad > Sub' format" },
+    "amount": { "type": "number", "description": "Amount in the transaction's currency. May be Decimal or Double." },
+    "currency": { "type": "string", "enum": ["JOD", "USD"], "description": "Defaults to JOD if missing" },
+    "date": {
+      "description": "Transaction date. Firestore Timestamp, ISO-8601 string, epoch number, or {seconds, nanoseconds} map.",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object", "properties": { "seconds": { "type": "number" }, "nanoseconds": { "type": "number" } } }
+      ]
+    },
+    "description": { "type": ["string", "null"], "description": "Primary human-facing text" },
+    "note": { "type": ["string", "null"] },
+    "notes": { "type": ["string", "null"], "description": "Alias for note" },
+    "periodId": { "type": ["string", "null"], "description": "Links to a Period document" },
+    "vendor": { "type": ["string", "null"] },
+    "fundingSource": { "type": ["string", "null"], "enum": ["psut", "own-capital", "revenue", null] },
+    "evidenceAttached": { "type": ["boolean", "null"] },
+    "evidenceFiles": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "required": ["id", "fileName", "fileType", "base64Data"],
+        "properties": {
+          "id": { "type": "string" },
+          "fileName": { "type": "string" },
+          "fileType": { "type": "string", "description": "MIME type, e.g. application/pdf, image/jpeg" },
+          "fileSize": { "type": ["number", "string", "null"] },
+          "uploadDate": {
+            "oneOf": [
+              { "type": "string", "format": "date-time" },
+              { "type": "number" },
+              { "type": "object" }
+            ]
+          },
+          "base64Data": { "type": "string", "description": "data:mime;base64,... or raw base64" }
+        }
+      }
+    },
+    "installmentId": { "type": ["string", "null"] },
+    "subscriptionId": { "type": ["string", "null"] },
+    "attachmentUrl": { "type": ["string", "null"] },
+    "createdAt": { "type": ["string", "number", "object", "null"] },
+    "updatedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

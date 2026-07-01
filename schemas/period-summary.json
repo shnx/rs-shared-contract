@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/period-summary.json",
+  "title": "PeriodSummary",
+  "description": "Pre-computed summary written by iOS after each data load. Stored in 'periodSummaries'.",
+  "type": "object",
+  "required": ["label"],
+  "properties": {
+    "projectId": { "type": ["string", "null"] },
+    "periodId": { "type": ["string", "null"], "description": "Non-nil for period summaries" },
+    "monthKey": { "type": ["string", "null"], "description": "Non-nil for monthly roll-ups (yyyy-MM)" },
+    "label": { "type": "string" },
+    "totalExpense": { "type": "number" },
+    "totalIncome": { "type": "number" },
+    "netPosition": { "type": "number" },
+    "transactionCount": { "type": "number" },
+    "byType": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "total", "count"],
+        "properties": {
+          "type": { "type": "string" },
+          "total": { "type": "number" },
+          "count": { "type": "number" }
+        }
+      }
+    },
+    "byCategory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["category", "planned", "actual"],
+        "properties": {
+          "category": { "type": "string" },
+          "planned": { "type": "number" },
+          "actual": { "type": "number" }
+        }
+      }
+    },
+    "computedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

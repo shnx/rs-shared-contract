@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/pdf-receipt-meta.json",
+  "title": "PDFReceiptMeta",
+  "description": "OCR-extracted receipt data written by iOS on-device analysis. Stored in 'ady_pdf_meta'.",
+  "type": "object",
+  "properties": {
+    "projectId": { "type": ["string", "null"] },
+    "transactionId": { "type": ["string", "null"] },
+    "fileName": { "type": ["string", "null"] },
+    "amount": { "type": ["number", "null"] },
+    "currency": { "type": ["string", "null"] },
+    "date": { "type": ["string", "number", "object", "null"] },
+    "vendor": { "type": ["string", "null"] },
+    "invoiceNumber": { "type": ["string", "null"] },
+    "suggestedCategory": { "type": ["string", "null"] },
+    "suggestedProject": { "type": ["string", "null"] },
+    "confidence": { "type": ["number", "null"] },
+    "method": { "type": ["string", "null"], "description": "on-device | ai" },
+    "extractedText": { "type": ["string", "null"] },
+    "rawJSON": { "type": ["string", "null"], "description": "Full parsed payload as JSON string" },
+    "analyzedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

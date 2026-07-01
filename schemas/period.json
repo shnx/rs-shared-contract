@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/period.json",
+  "title": "Period",
+  "description": "A budgeting window (month or custom date range). Stored in 'periods' (web) and 'ady_periods' (iOS).",
+  "type": "object",
+  "required": ["projectId", "name", "startDate", "endDate", "status"],
+  "properties": {
+    "projectId": { "type": "string" },
+    "storeId": { "type": ["string", "null"], "description": "Legacy" },
+    "name": { "type": "string", "description": "Display name, e.g. 'July 2026'" },
+    "startDate": {
+      "description": "Period start date. Firestore Timestamp, ISO-8601 string, epoch, or map.",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object" }
+      ]
+    },
+    "endDate": {
+      "description": "Period end date (inclusive of entire day).",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object" }
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["planned", "active", "completed", "closed", "done"],
+      "description": "planned → active → completed workflow. 'closed'/'done' map to completed."
+    },
+    "isClosed": { "type": ["boolean", "null"], "description": "Legacy mirror: true when status == completed" },
+    "allocatedFunds": { "type": ["number", "null"], "description": "Planned/allocated total (web field)" },
+    "plannedTotal": { "type": ["number", "null"], "description": "Alternative to allocatedFunds" },
+    "plannedItems": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object",
+        "required": ["id", "category", "amount"],
+        "properties": {
+          "id": { "type": "string" },
+          "category": { "type": "string" },
+          "amount": { "type": "number" },
+          "note": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "spentAmount": { "type": ["number", "null"], "description": "Σ cost in period (iOS recomputes on save)" },
+    "revenue": { "type": ["number", "null"], "description": "Σ revenue in period (iOS recomputes on save)" },
+    "netPosition": { "type": ["number", "null"] },
+    "fundName": { "type": ["string", "null"], "description": "e.g. 'PSUT Venture Lab'" },
+    "fundTotal": { "type": ["number", "null"], "description": "e.g. 10000" },
+    "notes": { "type": ["string", "null"] },
+    "createdAt": { "type": ["string", "number", "object", "null"] },
+    "updatedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/shared-view.json",
+  "title": "SharedView",
+  "description": "A shareable read-only link to the budget dashboard. NEW collection 'sharedViews'.",
+  "type": "object",
+  "required": ["projectId", "token", "createdAt"],
+  "properties": {
+    "projectId": { "type": "string", "description": "ADY project id to share" },
+    "createdBy": { "type": "string", "description": "User id who created the link" },
+    "token": { "type": "string", "description": "Random UUID — used in the URL path" },
+    "label": { "type": ["string", "null"], "description": "Optional name for this link" },
+    "expiresAt": { "type": ["string", "number", "object", "null"], "description": "Optional expiry timestamp" },
+    "createdAt": { "type": ["string", "number", "object"] },
+    "revoked": { "type": "boolean", "description": "Set to true to disable the link" }
+  }
+}

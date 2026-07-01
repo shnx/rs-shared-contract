@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/category-taxonomy.json",
+  "title": "CategoryTaxonomy",
+  "description": "Schema for the two-tier category system. See category-taxonomy-data.json for the actual data.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["name", "icon", "color", "keywords", "subCategories"],
+    "properties": {
+      "name": { "type": "string" },
+      "icon": { "type": "string", "description": "SF Symbol name" },
+      "color": { "type": "string", "description": "Hex color code" },
+      "keywords": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Keywords for broad-category matching (case-insensitive)"
+      },
+      "subCategories": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "keywords"],
+          "properties": {
+            "name": { "type": "string" },
+            "keywords": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
