@@ -16,9 +16,46 @@ The iOS app manages a full budgeting system for the **ADY project**. This guide 
   "label":      "string?",
   "expiresAt":  Timestamp?,
   "createdAt":  Timestamp,
-  "revoked":    boolean
+  "revoked":    boolean,
+
+  // ── Embedded financial summary (added to fix number mismatches) ──
+  "summary": {
+    "totalIncome":      number,   // JOD — all income (payment + check + revenue types)
+    "totalSpent":       number,   // JOD — all expenses (bill + cost types)
+    "netBalance":       number,   // totalIncome - totalSpent (can be negative = debt)
+    "transactionCount": number,
+    "periodCount":      number,
+    "isOverspent":      boolean,  // true if totalSpent > totalIncome
+    "overspendAmount":  number,   // JOD — how much over (0 if not overspent)
+    "generatedAt":      number    // epoch ms — when the summary was computed
+  },
+  "periods": [
+    {
+      "id":               "string",
+      "name":             "string",
+      "startDate":        number,  // epoch ms
+      "endDate":          number,  // epoch ms
+      "allocatedFunds":   number,  // JOD
+      "income":           number,  // JOD — actual income in this period
+      "spent":            number,  // JOD — actual expenses in this period
+      "net":              number,  // income - spent
+      "transactionCount": number
+    }
+  ]
 }
 ```
+
+> **Important:** The web app should prefer the embedded `summary` and `periods` fields
+> over recalculating from raw transactions. The iOS app classifies transactions
+> differently than the web app:
+>
+> - **iOS income**: `payment` + `check` + `revenue` types
+> - **iOS expense**: `bill` + `cost` types
+> - **Web (old)**: only `revenue` as income, everything else as cost
+>
+> This mismatch caused the web dashboard to show wrong numbers (e.g. showing
+> positive cash when actually in debt). Using the embedded `summary` ensures
+> the shared dashboard matches the iOS app exactly.
 
 ### URL format
 
