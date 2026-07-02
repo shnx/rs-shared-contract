@@ -17,8 +17,20 @@ The iOS app manages a full budgeting system for the **ADY project**. This guide 
   "expiresAt":  Timestamp?,
   "createdAt":  Timestamp,
   "revoked":    boolean,
+  "revokedAt":  Timestamp?,      // Set when link is deactivated
 
-  // ── Embedded financial summary (added to fix number mismatches) ──
+  // ── Fund (PSUT grant) — matches the iOS fund card exactly ──
+  "fund": {
+    "name":        "string",     // e.g. "PSUT Venture Lab"
+    "total":       number,       // JOD — total grant amount (e.g. 10000)
+    "received":    number,       // JOD — PSUT-tagged income received so far
+    "spent":       number,       // JOD — PSUT-tagged expenses (cost + bill)
+    "inCash":      number,       // JOD — max(0, received - spent) — money in hand
+    "toReceive":   number,       // JOD — max(0, total - received) — still expected
+    "receivedPct": number        // 0–100 — percentage of grant received
+  },
+
+  // ── Embedded financial summary (computed on iOS, matches overview) ──
   "summary": {
     "totalIncome":      number,   // JOD — all income (payment + check + revenue types)
     "totalSpent":       number,   // JOD — all expenses (bill + cost types)
@@ -41,21 +53,78 @@ The iOS app manages a full budgeting system for the **ADY project**. This guide 
       "net":              number,  // income - spent
       "transactionCount": number
     }
+  ],
+
+  // ── Carry-over timeline (chronological cumulative balance across periods) ──
+  "carryOverTimeline": [
+    {
+      "periodId":    "string",
+      "periodName":  "string",
+      "periodNet":   number,   // JOD — this period's income - expense
+      "carryIn":     number,   // JOD — cumulative balance before this period
+      "carryOut":    number,   // JOD — cumulative balance after this period (negative = debt)
+      "isDebt":      boolean   // true if carryOut < 0
+    }
+  ],
+
+  // ── Monthly buckets (grouped by yyyy-MM) ──
+  "monthlyBuckets": [
+    {
+      "id":      "string",    // yyyy-MM
+      "title":   "string",    // e.g. "June 2026"
+      "income":  number,      // JOD
+      "expense": number,      // JOD
+      "net":     number,      // JOD — income - expense
+      "count":   number       // transaction count
+    }
+  ],
+
+  // ── Transactions with evidence (for receipt viewing on web) ──
+  "transactions": [
+    {
+      "id":            "string",
+      "type":          "string",    // cost, bill, revenue, payment, check
+      "isExpense":     boolean,
+      "isIncome":      boolean,
+      "description":   "string",
+      "vendor":        "string",
+      "amount":        number,      // JOD (already converted from USD if needed)
+      "currency":      "string",    // "JOD" or "USD"
+      "date":          number,      // epoch ms
+      "category":      "string",
+      "fundingSource": "string",    // psut, own-capital, revenue
+      "periodId":      "string",
+      "note":          "string",
+      "evidence": [                 // Receipt files — base64 embedded
+        {
+          "id":          "string",
+          "fileName":    "string",
+          "fileType":    "string",    // application/pdf, image/jpeg, etc.
+          "base64Data":  "string"     // raw base64 — render as data URI
+        }
+      ]
+    }
   ]
 }
 ```
 
-> **Important:** The web app should prefer the embedded `summary` and `periods` fields
-> over recalculating from raw transactions. The iOS app classifies transactions
-> differently than the web app:
+> **Important:** The web app should prefer the embedded `fund`, `summary`, `periods`,
+> `carryOverTimeline`, `monthlyBuckets`, and `transactions` fields over recalculating
+> from raw transactions. The iOS app classifies transactions differently than the web app:
 >
 > - **iOS income**: `payment` + `check` + `revenue` types
 > - **iOS expense**: `bill` + `cost` types
 > - **Web (old)**: only `revenue` as income, everything else as cost
 >
 > This mismatch caused the web dashboard to show wrong numbers (e.g. showing
-> positive cash when actually in debt). Using the embedded `summary` ensures
+> positive cash when actually in debt). Using the embedded fields ensures
 > the shared dashboard matches the iOS app exactly.
+>
+> **Receipts/evidence:** The `transactions` array includes an `evidence` field per
+> transaction. If the array is empty, there is no receipt. If it has entries, each
+> contains `base64Data` that can be rendered as a data URI (`data:{fileType};base64,{base64Data}`).
+> Do NOT show any icon or indicator for whether a receipt exists — only show it when
+> the user opens transaction details.
 
 ### URL format
 
