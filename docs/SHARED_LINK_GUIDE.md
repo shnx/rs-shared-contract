@@ -26,20 +26,18 @@ The iOS app manages a full budgeting system for the **ADY project**. This guide 
 https://yourdomain.com/shared/{token}
 ```
 
-### Express endpoint
+### Data fetching (client-side)
 
-```
-GET /api/shared/:token
-```
+**Updated:** The web app now fetches data **directly from Firestore** on the client side (no Express endpoint needed for Firebase Hosting).
 
-**Server-side logic:**
-1. Look up `sharedViews` where `token == :token` AND `revoked != true`
-2. If `expiresAt` exists and is in the past → return 410 Gone
+**Client-side logic:**
+1. Query `sharedViews` where `token == :token` AND `revoked != true`
+2. If `expiresAt` exists and is in the past → show expired message
 3. Fetch `projectId` from the document
 4. Query `transactions` + `ady_transactions` where `projectId == <id>` (merge by ID, keep newer `updatedAt`)
 5. Query `periods` + `ady_periods` where `projectId == <id>` (merge by ID)
 6. Query `documents` where `projectId == <id>`
-7. Return JSON payload with all data + computed summaries
+7. Compute summaries client-side (same formulas as iOS)
 
 ### Response shape
 
@@ -111,9 +109,8 @@ GET /api/shared/:token
 
 ## Security
 
-- `sharedViews` collection: **no client-side read rules** — only server/Cloud Functions read it
-- Express endpoint validates token server-side
-- Rate-limit the endpoint
+- `sharedViews` collection: **public read** — the web client reads it directly (token is a random UUID, doc only contains `projectId` + `token` + `label` + `expiresAt`)
+- `transactions`, `periods`, `documents` collections: still require auth — the shared dashboard only reads `sharedViews` client-side; financial data is fetched via the same public read rules as `venture_reports` (if needed, we can switch to a Cloud Function proxy)
 - Page is **read-only** — no edit/delete/create
 - Evidence files (base64) can be large — exclude from payload or lazy-load per transaction
 
@@ -127,9 +124,9 @@ Add a "Share" button in `ProjectWorkspaceView` toolbar that:
 
 ```
 match /sharedViews/{docId} {
-  // Only server SDK / Cloud Functions can read.
-  // Clients can create (to generate a link) but cannot read others' links.
+  // Public read — web client fetches directly for Firebase Hosting
+  allow read: if true;
   allow create: if request.auth != null;
-  allow read, update, delete: if false;  // server-only
+  allow update, delete: if request.auth != null;
 }
 ```

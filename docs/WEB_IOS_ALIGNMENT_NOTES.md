@@ -65,7 +65,7 @@ We've completed the **Firebase Auth migration** on the web side. This directly a
   "username": "string (lowercase)",
   "email": "string (lowercase)",
   "name": "string",
-  "role": "admin | student | candidate | advisor | client",
+  "role": "admin | manager | student | candidate | advisor | client",
   "hasPassword": "boolean",
   "projectIds": "string[]",
   "permissions": {
@@ -76,13 +76,25 @@ We've completed the **Firebase Auth migration** on the web side. This directly a
     "canViewContracts": "boolean",
     "canViewTransactions": "boolean",
     "canViewReports": "boolean",
+    "canManageSubscriptions": "boolean",
+    "canGenerateReports": "boolean",
     "canEdit": "boolean",
     "canDelete": "boolean",
-    "canManageUsers": "boolean"
+    "canComment": "boolean",
+    "canManageUsers": "boolean",
+    "canManageProjects": "boolean"
   },
   "createdAt": "ISO 8601"
 }
 ```
+
+**⚠️ UPDATED — Breaking change for iOS:** The permissions schema has been expanded from 10 to 14 fields. The iOS `UserPermissions` struct needs to add these 4 new fields:
+- `canManageSubscriptions: boolean`
+- `canGenerateReports: boolean`
+- `canComment: boolean`
+- `canManageProjects: boolean`
+
+Also, the `manager` role has been added to the role list. Update your role enum/switch to handle it.
 
 **Note:** We no longer store `password` or `passwordHash` in Firestore. Password hashing is handled entirely by Firebase Auth.
 
