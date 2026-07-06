@@ -52,10 +52,11 @@ All schema changes to the shared contract between iOS and web apps.
 ### Changed
 - **Web portal tab consolidation: 37 → 20 tabs.** Merged CV templates + invitations into CV Center, video tutorials + assignments into Video Hub, contact messages + careers into Website Manager.
 - **SubmissionResponse page** — unified list with funnel filter buttons and search by name/email/role.
-- **`isExpense` function** — to be updated to treat `freelance` and `salary` as expenses (matching iOS default → `.cost` behavior).
+- **`isExpense` function** — confirmed `freelance` and `salary` types are treated as expenses (matching iOS default → `.cost` behavior). Added to `Transaction.type` union.
+- **`contact_submissions` schema** — added `repliedAt` (timestamp), `replyMessage` (string), `repliedBy` (uid) fields. UI shows "Replied <date>" when set.
+- **Duplicate "First Payment" period deleted** — `1764518075230bwtmp8tlg` removed from `ady_periods` in Firestore.
 
-### TODO (This Week)
-- Add `repliedAt` field to `contact_submissions` collection.
-- Create `extractCVData` callable Cloud Function for iOS CV extraction.
-- Create `sendContactReply` Cloud Function for replying to contact form messages.
-- Delete duplicate "First Payment" period from Firestore (`1764518075230bwtmp8tlg`).
+### Added
+- **`extractCVData` Cloud Function** — callable, takes `jobSubmissionId`, fetches CV from submission, sends to Gemini for structured extraction, saves `extractedData` + `extractedAt` back on `job_submissions` doc. Returns extracted structured data. iOS can call directly.
+- **`sendContactReply` Cloud Function** — callable, takes `contactId` + `replyMessage`, sends branded reply email to contact form submitter, updates `contact_submissions` with `status=replied`, `repliedAt`, `replyMessage`, `repliedBy`.
+- **Email deliverability improvements** — plaintext versions added to all email functions, anti-spam headers (`List-Unsubscribe`, `X-Priority`, `X-Mailer`, `Feedback-ID`), consistent `info@contact.the-rs.com` address. See `EMAIL_DELIVERABILITY_GUIDE.md` for DNS setup (SPF/DKIM/DMARC).
