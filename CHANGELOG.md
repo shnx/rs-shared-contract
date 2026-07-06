@@ -37,3 +37,25 @@ All schema changes to the shared contract between iOS and web apps.
 - Category keywords in web `sharedBudgetClient.ts` synced to match `CATEGORY_TAXONOMY.md` exactly.
 - Cloud Functions migrated from v1 to v2 SDK with `defineSecret()` for SMTP credentials.
 - Sender email updated to `info@contact.the-rs.com` (Resend verified domain).
+
+## [1.2.0] - 2026-07-06
+
+### Added
+- **`email_responses` collection** — tracks student responses from interactive email buttons. Fields: `id`, `contactId`, `email`, `responseType` (accept/decline/survey), `submittedAt`, `answers[]`.
+- **`crm_contacts` updated** — new fields: `responseToken`, `lastResponseType`, `lastResponseAt`.
+- **`job_submissions` status expanded** — new values: `interested`, `declined`, `survey_completed`, `enrolled`.
+- **`captureEmailResponse` Cloud Function** — public HTTP endpoint for capturing student email responses.
+- **`sendSubmissionResponse` Cloud Function** — callable, sends branded HTML emails with interactive response buttons via Resend REST API.
+- **`SWIFT_APP_INTEGRATION_GUIDE.md` Section 21** — full iOS integration guide for email response system with Swift code examples.
+- **`WEB_RESPONSE_JULY6.md`** — comprehensive response to all open iOS questions and alignment items.
+
+### Changed
+- **Web portal tab consolidation: 37 → 20 tabs.** Merged CV templates + invitations into CV Center, video tutorials + assignments into Video Hub, contact messages + careers into Website Manager.
+- **SubmissionResponse page** — unified list with funnel filter buttons and search by name/email/role.
+- **`isExpense` function** — to be updated to treat `freelance` and `salary` as expenses (matching iOS default → `.cost` behavior).
+
+### TODO (This Week)
+- Add `repliedAt` field to `contact_submissions` collection.
+- Create `extractCVData` callable Cloud Function for iOS CV extraction.
+- Create `sendContactReply` Cloud Function for replying to contact form messages.
+- Delete duplicate "First Payment" period from Firestore (`1764518075230bwtmp8tlg`).
