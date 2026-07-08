@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/booking.json",
+  "title": "Booking",
+  "description": "A consultation booking made from the website /book page (or iOS). Stored in the 'bookings' collection (same name on web + iOS). See BOOKING_SYSTEM_CANONICAL.md.",
+  "type": "object",
+  "required": ["id", "email", "name", "serviceOfferingId", "serviceType", "scheduledAt", "durationMinutes", "status", "priceUSD", "paymentStatus", "createdAt"],
+  "properties": {
+    "id": { "type": "string", "description": "Doc id" },
+    "userId": { "type": ["string", "null"], "description": "Set if the booker was logged in" },
+    "email": { "type": "string" },
+    "name": { "type": "string" },
+    "company": { "type": ["string", "null"], "description": "Company name for company_assessment bookings" },
+    "phone": { "type": ["string", "null"] },
+    "serviceOfferingId": { "type": "string", "description": "ref to service_offerings.id" },
+    "serviceType": {
+      "type": "string",
+      "enum": ["coffee_time", "curriculum_builder", "course_access", "company_assessment"],
+      "description": "Denormalized from the offering for easy filtering"
+    },
+    "scheduledAt": {
+      "description": "Chosen slot start. Firestore Timestamp, ISO-8601 string, epoch number, or {seconds,nanoseconds} map.",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object", "properties": { "seconds": { "type": "number" }, "nanoseconds": { "type": "number" } } }
+      ]
+    },
+    "durationMinutes": { "type": "number" },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "confirmed", "completed", "cancelled"],
+      "description": "pending = created, not yet paid/confirmed; confirmed = paid or admin-confirmed"
+    },
+    "priceUSD": { "type": "number", "description": "Amount quoted for this booking in USD" },
+    "stripeSessionId": { "type": ["string", "null"], "description": "Stripe Checkout Session id when payment initiated" },
+    "paymentStatus": { "type": "string", "enum": ["unpaid", "paid"] },
+    "notes": { "type": ["string", "null"], "description": "What the booker wants to talk about" },
+    "createdAt": {
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "number" },
+        { "type": "object" }
+      ]
+    },
+    "updatedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}
