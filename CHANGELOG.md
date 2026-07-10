@@ -38,6 +38,21 @@ All schema changes to the shared contract between iOS and web apps.
 - Cloud Functions migrated from v1 to v2 SDK with `defineSecret()` for SMTP credentials.
 - Sender email updated to `info@contact.the-rs.com` (Resend verified domain).
 
+## [1.3.0] - 2026-07-10
+
+### iOS Changes
+- **Project consolidation aligned with web team** — 3 projects: ADY, Website Tools, Riad Shannak. Removed `studentTrack` project.
+- **ADY removed from main tab bar** — accessed only through Projects hub.
+- **Main tab bar cleanup** — removed Submissions (moved to Website Tools), Achievements (removed entirely), Report Generator (broken/removed).
+- **New ADY "Insights" tab** — category breakdown, recurring payments management, AI-assisted recurring detection. Uses existing Transaction fields (`isRecurring`, `recurrenceFrequency`, `label`, `recipientName`). No schema changes.
+- **Gemini model updated** from `gemini-2.0-flash` to `gemini-2.5-flash` (2.0 shut down June 1, 2026).
+- **Screenshot tool rewritten** — user picks image from photo library, draggable overlays, AI field detection, preset save/load. iOS-only, no web impact.
+
+### Action Items for Web Team
+- Update Gemini model to `gemini-2.5-flash` if using Gemini on web
+- Consider building an Insights view on web portal
+- No Firestore schema changes needed
+
 ## [1.2.0] - 2026-07-06
 
 ### Added
