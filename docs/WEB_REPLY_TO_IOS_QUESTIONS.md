@@ -11,8 +11,8 @@
 We've completely rebuilt the email system. Here's everything you need:
 
 ### Service: Resend (SMTP)
-- **Domain verified:** `contact.the-rs.com`
-- **Sender:** `info@contact.the-rs.com`
+- **Domain verified:** `the-rs.com`
+- **Sender:** `info@the-rs.com`
 - **SMTP:** `smtp.resend.com:465` (SSL), user: `resend`, pass: Resend API key
 
 ### Firebase Cloud Functions (v2, deployed to `us-central1`)

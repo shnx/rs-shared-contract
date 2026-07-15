@@ -36,7 +36,7 @@ All schema changes to the shared contract between iOS and web apps.
 - `SHARED_LINK_GUIDE.md` — updated to reflect client-side rendering instead of Express endpoint.
 - Category keywords in web `sharedBudgetClient.ts` synced to match `CATEGORY_TAXONOMY.md` exactly.
 - Cloud Functions migrated from v1 to v2 SDK with `defineSecret()` for SMTP credentials.
-- Sender email updated to `info@contact.the-rs.com` (Resend verified domain).
+- Sender email updated to `info@the-rs.com` (Resend verified domain).
 
 ## [1.3.0] - 2026-07-10
 
@@ -74,4 +74,4 @@ All schema changes to the shared contract between iOS and web apps.
 ### Added
 - **`extractCVData` Cloud Function** — callable, takes `jobSubmissionId`, fetches CV from submission, sends to Gemini for structured extraction, saves `extractedData` + `extractedAt` back on `job_submissions` doc. Returns extracted structured data. iOS can call directly.
 - **`sendContactReply` Cloud Function** — callable, takes `contactId` + `replyMessage`, sends branded reply email to contact form submitter, updates `contact_submissions` with `status=replied`, `repliedAt`, `replyMessage`, `repliedBy`.
-- **Email deliverability improvements** — plaintext versions added to all email functions, anti-spam headers (`List-Unsubscribe`, `X-Priority`, `X-Mailer`, `Feedback-ID`), consistent `info@contact.the-rs.com` address. See `EMAIL_DELIVERABILITY_GUIDE.md` for DNS setup (SPF/DKIM/DMARC).
+- **Email deliverability improvements** — plaintext versions added to all email functions, anti-spam headers (`List-Unsubscribe`, `X-Priority`, `X-Mailer`, `Feedback-ID`), consistent `info@the-rs.com` address. See `EMAIL_DELIVERABILITY_GUIDE.md` for DNS setup (SPF/DKIM/DMARC).

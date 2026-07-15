@@ -68,7 +68,7 @@ Tracks whether Google Calendar is connected.
   "connected": true,
   "connectedAt": "2026-07-10T12:00:00Z",
   "connectedBy": "shannak",
-  "calendarId": "info@contact.the-rs.com"
+  "calendarId": "info@the-rs.com"
 }
 ```
 
@@ -160,7 +160,7 @@ const result = await syncBookingViaCloudFunction({
 3. Set Firestore secrets:
    - `GOOGLE_SERVICE_ACCOUNT_EMAIL`
    - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`
-   - `GOOGLE_CALENDAR_ID` (e.g. `info@contact.the-rs.com`)
+   - `GOOGLE_CALENDAR_ID` (e.g. `info@the-rs.com`)
 4. Deploy Cloud Function
 
 ### Calendar connection status

@@ -2,13 +2,13 @@
 
 **From:** iOS team
 **To:** Web team
-**Re:** Updated plan using existing `info@contact.the-rs.com` email + Resend inbound webhooks. No new Gmail needed.
+**Re:** Updated plan using existing `info@the-rs.com` email + Resend inbound webhooks. No new Gmail needed.
 
 ---
 
 ## What Already Exists
 
-1. **`info@contact.the-rs.com`** — sending via Resend SMTP (`smtp.resend.com:465`)
+1. **`info@the-rs.com`** — sending via Resend SMTP (`smtp.resend.com:465`)
 2. **Firebase Cloud Functions** with `nodemailer` — `sendCVFeedback`, `sendInvitationEmail` (deployed, working)
 3. **SMTP secrets** stored as Firebase secrets: `SMTP_USER`, `SMTP_PASS`
 4. **Email Test Page** at `/email-test` — mock only (logs to console)
@@ -21,7 +21,7 @@
 Vendor sends receipt PDF
         │
         ▼
-info@contact.the-rs.com  (Resend receiving domain)
+info@the-rs.com  (Resend receiving domain)
         │
         ▼  webhook: email.received event
         │
@@ -49,7 +49,7 @@ info@contact.the-rs.com  (Resend receiving domain)
 
 ## Why This Is Better Than Gmail
 
-- **No new email account** — use existing `info@contact.the-rs.com`
+- **No new email account** — use existing `info@the-rs.com`
 - **Real-time** — Resend sends webhook immediately when email arrives (no polling)
 - **No Gmail API setup** — no OAuth, no credentials, no token refresh
 - **Attachments API** — Resend gives download URLs for attachments (valid 1 hour)
@@ -69,7 +69,7 @@ info@contact.the-rs.com  (Resend receiving domain)
 ### Step 2: Verify Receiving Domain
 
 Resend needs `the-rs.com` configured for receiving. Check:
-- **Resend Dashboard → Domains** — is `contact.the-rs.com` verified for sending?
+- **Resend Dashboard → Domains** — is `the-rs.com` verified for sending?
 - If yes, receiving should work automatically (same domain)
 - If not, add MX records for inbound (Resend docs: https://resend.com/docs/dashboard/receiving/)
 
@@ -366,7 +366,7 @@ Full field list in `EMAIL_TO_EXPENSE_SPEC.md` (previous version).
 ## What Web Team Needs to Do
 
 1. **Enable Resend inbound** — add webhook URL in Resend dashboard
-2. **Verify MX records** for `contact.the-rs.com` receiving (Resend docs)
+2. **Verify MX records** for `the-rs.com` receiving (Resend docs)
 3. **Set `RESEND_API_KEY` secret** — `firebase functions:secrets:set RESEND_API_KEY`
 4. **Install `pdf-parse` in functions/** — `cd functions && npm install pdf-parse`
 5. **Add `processInboundEmail` function** to `functions/src/index.ts`
@@ -383,18 +383,18 @@ Full field list in `EMAIL_TO_EXPENSE_SPEC.md` (previous version).
 
 ## Vendors Can Now Send To
 
-Share `info@contact.the-rs.com` with vendors:
-- Arduino Store → send receipts to `info@contact.the-rs.com`
+Share `info@the-rs.com` with vendors:
+- Arduino Store → send receipts to `info@the-rs.com`
 - Google Cloud → forward billing emails
 - Apple Developer → forward receipts
-- Any vendor → ask them to CC `info@contact.the-rs.com`
+- Any vendor → ask them to CC `info@the-rs.com`
 
 **Also:** Set up forwarding from your personal Gmail:
-- Filter: if subject contains "receipt" or "invoice" → forward to `info@contact.the-rs.com`
+- Filter: if subject contains "receipt" or "invoice" → forward to `info@the-rs.com`
 
 ## Questions
 
-1. **Is `contact.the-rs.com` verified in Resend for sending?** If yes, receiving should work with same domain.
+1. **Is `the-rs.com` verified in Resend for sending?** If yes, receiving should work with same domain.
 2. **Do we need separate MX records for receiving?** Check Resend docs — may need to add MX records pointing to Resend's inbound servers.
 3. **Webhook URL** — needs to be publicly accessible. Firebase Cloud Functions v2 are public by default. OK?
 4. **Multiple PDFs per email** — current plan: create one transaction per PDF. OK?

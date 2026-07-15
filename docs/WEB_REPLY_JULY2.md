@@ -13,7 +13,7 @@
 We use **Resend SMTP** + Firebase Cloud Functions (not Nodemailer/SendGrid/Mailgun).
 
 - **SMTP:** `smtp.resend.com:465` (SSL), user: `resend`
-- **Sender:** `info@contact.the-rs.com` (domain `contact.the-rs.com` verified)
+- **Sender:** `info@the-rs.com` (domain `the-rs.com` verified)
 - **Two Cloud Functions deployed to `us-central1`:**
   - `sendCVFeedback(email, studentName, feedback, invitationId)` — callable, requires auth
   - `sendInvitationEmail(email, studentName, invitationId)` — callable, requires auth

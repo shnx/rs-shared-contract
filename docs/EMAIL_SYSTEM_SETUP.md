@@ -9,9 +9,9 @@
 ## What We've Built
 
 ### Email Provider: Resend
-- **Domain verified:** `contact.the-rs.com` (Resend domain ID: `f19f7760-40f3-4c3f-b4c8-da9fcb5005e0`)
-- **Sender address:** `info@contact.the-rs.com`
-- **Reply-to:** `info@contact.the-rs.com`
+- **Domain verified:** `the-rs.com` (Resend domain ID: `f19f7760-40f3-4c3f-b4c8-da9fcb5005e0`)
+- **Sender address:** `info@the-rs.com`
+- **Reply-to:** `info@the-rs.com`
 - **SMTP:** `smtp.resend.com:465` (SSL), user = `resend`, pass = Resend API key
 
 ### Firebase Cloud Functions (deployed to `us-central1`)
@@ -69,7 +69,7 @@ functions.httpsCallable("sendInvitationEmail").call([
 If you prefer to send emails from the iOS side:
 - Install Resend Swift SDK (or use REST API directly)
 - Use the same API key (stored securely in Firebase Remote Config or your own secret manager)
-- Sender: `info@contact.the-rs.com`
+- Sender: `info@the-rs.com`
 - SMTP: `smtp.resend.com:465`, user: `resend`, pass: your API key
 
 **⚠️ Warning:** Never hardcode the API key in the iOS app binary. Use Firebase Remote Config or a backend proxy.

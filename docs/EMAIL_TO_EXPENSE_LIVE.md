@@ -11,7 +11,7 @@
 
 ### 1. Cloud Function: `processInboundEmail`
 
-A webhook endpoint that receives inbound emails from Resend when someone sends to `info@contact.the-rs.com`.
+A webhook endpoint that receives inbound emails from Resend when someone sends to `info@the-rs.com`.
 
 **URL:**
 ```
@@ -50,7 +50,7 @@ A new admin-only tab in the portal that shows all received emails:
   messageId: "resend-message-id",      // for dedup
   from: "store@arduino.com",
   fromName: "Arduino Store",
-  to: "info@contact.the-rs.com",
+  to: "info@the-rs.com",
   subject: "Order #12345 — Receipt",
   bodyText: "Thank you for your...",
   bodyHtml: "<html>...",
@@ -180,7 +180,7 @@ Transactions with `evidenceAttached == true` and `evidenceFiles` array:
 ## How the Full Flow Works
 
 ```
-1. Vendor sends email with PDF receipt to info@contact.the-rs.com
+1. Vendor sends email with PDF receipt to info@the-rs.com
 2. Resend receives the email → fires webhook to processInboundEmail
 3. Cloud Function:
    a. Parses PDF text
@@ -204,7 +204,7 @@ Transactions with `evidenceAttached == true` and `evidenceFiles` array:
 - ✅ Web UI (Email Inbox tab) built and deployed
 
 **Still needed (Mohammad is doing this):**
-- Enable Resend inbound for `contact.the-rs.com` domain
+- Enable Resend inbound for `the-rs.com` domain
 - Add MX records to DNS
 - Set webhook URL to the Cloud Function URL above
 
@@ -213,7 +213,7 @@ Transactions with `evidenceAttached == true` and `evidenceFiles` array:
 ## Testing
 
 To test the flow once Resend inbound is configured:
-1. Send an email to `info@contact.the-rs.com` with a PDF receipt attached
+1. Send an email to `info@the-rs.com` with a PDF receipt attached
 2. Wait a few seconds for the webhook to fire
 3. Check the Email Inbox tab on the web portal
 4. The email should appear with extracted data and PDF preview
@@ -227,7 +227,7 @@ curl -X POST https://us-central1-robotics-website-5593f.cloudfunctions.net/proce
   -d '{
     "from": "test@store.com",
     "from_name": "Test Store",
-    "to": "info@contact.the-rs.com",
+    "to": "info@the-rs.com",
     "subject": "Test Receipt",
     "text": "Total: JD 150.00\nDate: 2026-07-03",
     "message_id": "test-001",
