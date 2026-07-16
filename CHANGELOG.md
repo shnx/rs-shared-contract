@@ -140,6 +140,25 @@ iOS requests write access to collections currently web-only managed:
 - Consider building an Insights view on web portal
 - No Firestore schema changes needed
 
+## [1.3.0] - 2026-07-08
+
+### Added
+- **Booking & services system (canonical).** `BOOKING_SYSTEM_CANONICAL.md` is now
+  the source of truth for consultation pricing + data model. Pricing decision:
+  **USD funnel tiers** (Coffee Time $7, Curriculum Builder $25/mo, Course Access
+  $12/mo, Company System Assessment $50–100/hr).
+- **`service_offerings` collection** — admin-managed service catalog. Schema:
+  `schemas/service-offering.json`. Seed 4 offerings (see canonical doc).
+- **`bookings` collection** — consultation bookings. Schema: `schemas/booking.json`.
+  Fields incl. `serviceType`, `scheduledAt`, `status`, `priceUSD`, `paymentStatus`.
+- **`availability` collection** — recurring weekly availability windows expanded
+  into bookable slots. Schema: `schemas/availability.json`. Default fallback:
+  Sun–Thu 10:00–18:00, 30-min slots.
+
+### Note
+- Supersedes the pricing sections of `SERVICES_BOOKING_PROPOSAL.md` and
+  `IOS_PROPOSAL_PAID_CONSULTATIONS.md`; both apps must match the canonical doc.
+
 ## [1.2.0] - 2026-07-06
 
 ### Added
