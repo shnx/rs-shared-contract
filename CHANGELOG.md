@@ -2,6 +2,38 @@
 
 All schema changes to the shared contract between iOS and web apps.
 
+## [1.6.0] - 2026-07-15
+
+### Added — iOS Admin Portal
+- **Public booking search** — new "حجوزاتي" (My Bookings) section on the public site where visitors can search for their existing bookings by name (or partial name) + email. Results show booking status, service type, date, and payment status.
+- **Account registration from booking** — users who find their booking can register an account (set username + password) directly from the booking card. Creates Firebase Auth user, SystemUser document, and links existing bookings to the new account via `userId` field.
+- **`BookingsRepository.searchByNameAndEmail()`** — public search method that fetches by email then filters client-side by partial name match (Firestore doesn't support LIKE queries).
+- **`AuthManager.registerFromBooking()`** — creates a Firebase Auth account from a booking lookup, creates SystemUser doc, and links all existing bookings with that email to the new user ID.
+- **Full admin portal on iOS** — new `AdminPortalView` with 10 sections matching web admin controls:
+  - **Dashboard** — today's bookings, upcoming bookings, revenue today, default price stat cards
+  - **Bookings** — searchable/filterable list, status changes (confirm/complete/cancel), session link editing, join session link
+  - **Calendar** — availability recurring weekly rules (dayOfWeek/startTime/endTime), calendar blocks, time slot config tiers
+  - **Payments** — default booking price editor, Tap payment config list (test/production)
+  - **Coupons** — list, create with random code generator, copy code, active/inactive toggle
+  - **People** — 5 sub-sections: Users, CRM Contacts, Student CRM, Job Submissions, Call Invitations
+  - **Services** — service offerings list with full web schema, price escalation rules
+  - **Courses** — 4 sub-sections: Courses, Membership Plans, Video Tutorials, Skill Questions
+  - **Website** — 5 sub-sections: Site Sections, Contact Submissions, Careers, Portal Messages, User Messages
+  - **Settings** — role definitions, analytics events/sessions counts, agent log
+- **New Swift models** (`AdminModels.swift`) for all web collections:
+  - `PaymentConfig`, `TapConfig`, `CalendarBlock`, `Coupon`, `SessionOutcome`, `PriceEscalationRule`
+  - `ContactSubmission`, `UserMessage`, `SkillQuestion`, `DiscoverQuizResult`, `AnalyticsEvent`, `AnalyticsSession`
+  - `AgentLog`, `MembershipPlan`, `RoleDefinition`, `ServiceOfferingFull`, `BookingFull`
+  - `StudentCRM`, `AvailabilityRule` (recurring weekly), `AnyCodable` (flexible Firestore field wrapper)
+- **New Firestore repositories** (`AdminRepositories.swift`) for all new collections with custom query methods
+- **`FirestoreRepository.add()`** — auto-generated document ID method for `@DocumentID` models
+- **`FirestoreRepository.firestore` / `.path`** — protected accessors for subclass custom queries
+- **Admin tab** added to `MainTabView` for admin role (shield icon)
+
+### Changed
+- **`FirestoreRepository.db` / `.collectionPath`** — exposed via `firestore` and `path` computed properties for subclass access (was `private`)
+- **Availability schema** — iOS now uses recurring weekly model (`dayOfWeek`, `startTime`, `endTime`) matching web canonical schema
+
 ## [1.0.0] - 2026-07-01
 
 ### Added
