@@ -579,19 +579,17 @@ let price = Double(discountValue) / 100.0
 
 **Answer:** This is a real issue. Current Firestore rules require `request.auth != null` for `list` on `bookings`, so unauthenticated `whereField("email", isEqualTo:)` will fail.
 
-**Web will fix by building a Cloud Function `findBookingsByEmail`:**
+**✅ DEPLOYED: Cloud Function `findBookingsByEmail`:**
 ```swift
 try await Functions.functions(region: "us-central1")
     .httpsCallable("findBookingsByEmail")
     .call(["email": email])
-// Returns: [Booking] (array of user's bookings), no auth required
+// Returns: { success: true, bookings: [Booking] }
 ```
 
-**Why not change Firestore rules?** Allowing public `list` by email would expose booking IDs and names to anyone who guesses an email. The CF will also rate-limit and require email verification code before returning results (optional but recommended).
+**Why not change Firestore rules?** Allowing public `list` by email would expose booking IDs and names to anyone who guesses an email. The CF validates email format and queries server-side with admin privileges. iOS should still require `sendBookingVerifyCode` before showing full booking management to public users.
 
 **iOS action:** Use `findBookingsByEmail` CF for public booking search. For logged-in users, use direct Firestore query `bookings` by `userId` or `email`.
-
-**ETA:** Web will deploy `findBookingsByEmail` within 24h. Until then, iOS can test with a hardcoded auth user or use a test collection.
 
 ---
 
@@ -601,7 +599,7 @@ try await Functions.functions(region: "us-central1")
 2. **"Latest web answers are July 9 / July 2"** — Outdated. The latest are `WEB_REPLY_IOS_JULY24.md` and `IOS_CHANGELOG_JULY24.md`.
 3. **"WEB_RESPONSE_IOS_JULY8 says Tap only, but DiscoverPage uses PayPal = conflict"** — July 8 doc is old. The July 24 docs and code clearly support Tap + Stripe + PayPal. No conflict — the system evolved.
 4. **"10 questions from July 15 still open"** — They were answered in `WEB_REPLY_IOS_JULY24.md` Part 1.
-5. **"Need `findBookingsByEmail` CF"** — Correct. This is the only genuinely new critical issue. Web will build it.
+5. **"Need `findBookingsByEmail` CF"** — Correct, and already deployed.
 
 ---
 
