@@ -291,13 +291,59 @@ struct BookingCalendarConfig: Codable {
 
 ### 3f. User 360° Profile Page (Admin Only — NEW July 24 evening)
 
-**What:** New admin tab `user-360` that aggregates ALL user data in one view.
+**What:** New admin tab `user-360` that aggregates ALL user data in one unified view. High-value feature for iOS to build.
 
 **Tabs:** Overview, Timeline, CV (inline preview + AI analysis), Bookings, Emails (send + history), Messages, Account (permissions), Analytics (sessions), Portal Preview (impersonation).
 
 **Data sources:** submissions, bookings, CRM contacts, system users, call invitations, portal messages, analytics events/sessions, email logs, service offerings.
 
-**iOS impact:** **None.** This is admin-only. No changes to user-facing data structures. iOS does not need to implement this — it's a web admin tool.
+**iOS recommendation:** **Build this.** It's a great admin feature. Here's how:
+
+```swift
+struct User360Profile {
+    let systemUser: SystemUser?           // systemUsers (by email)
+    let submissions: [JobSubmission]      // job_submissions (by email)
+    let bookings: [Booking]               // bookings (by email)
+    let crmContacts: [CRMContact]         // crm_contacts (by email)
+    let studentCRM: [StudentCRMContact]   // student_crm (by email)
+    let callInvitations: [CallInvitation] // call_invitations (by studentEmail)
+    let messages: [PortalMessage]         // portal_messages (by userId)
+    let emailLogs: [EmailLog]             // email_logs (by to/email)
+    let analyticsEvents: [AnalyticsEvent] // analytics_events
+    let analyticsSessions: [VisitorSession] // analytics_sessions
+}
+
+// Fetch all user data by email — parallel async calls
+func loadUser360(email: String) async throws -> User360Profile {
+    async let user = fetchSystemUser(email: email)
+    async let subs = fetchSubmissions(email: email)
+    async let books = fetchBookings(email: email)
+    async let crm = fetchCRMContacts(email: email)
+    async let invites = fetchCallInvitations(email: email)
+    async let logs = fetchEmailLogs(email: email)
+    // ...return User360Profile(...)
+}
+```
+
+**iOS screens:**
+- `User360View.swift` — SwiftUI TabView with tabs: Overview, Timeline, CV, Bookings, Emails, Messages, Account, Analytics
+- Tappable user names/emails in Funnel Manager, User Management, Booking Management → navigate to User360
+- Email sending via `sendSubmissionResponse` CF
+- CV preview via `extractCVFromBase64` CF or inline PDF viewer
+- Analytics sessions timeline (pages visited, device, geo)
+
+**Firestore queries (all by email):**
+```swift
+db.collection("job_submissions").whereField("email", isEqualTo: email)
+db.collection("bookings").whereField("email", isEqualTo: email)
+db.collection("crm_contacts").whereField("email", isEqualTo: email)
+db.collection("call_invitations").whereField("studentEmail", isEqualTo: email)
+db.collection("email_logs").whereField("to", isEqualTo: email)
+db.collection("portal_messages").whereField("userId", isEqualTo: userId)
+db.collection("systemUsers").whereField("email", isEqualTo: email)
+```
+
+**No new collections needed** — reads existing collections only. All queries by email (or userId for messages). Firestore rules already allow auth reads.
 
 ---
 
@@ -337,26 +383,26 @@ struct BookingCalendarConfig: Codable {
 10. ✅ Read booking calendar config dynamically from `site_config/booking_settings`
 
 ### Should Do (P2)
-11. Add Booking Invitations screen (select students, send emails)
-12. Add auto-welcome toggle for submissions
-13. Add user management CRUD with permission toggles
-14. Add availability management UI (day/time/buffer/max/tier)
-15. Add calendar blocks management
-16. Read `call_invitations` by email for student portal banner
-17. Add `sendBookingVerifyCode` CF call for booking cancellation verification
-18. Read `couponCode` from bookings to display coupon used
+11. **Build User 360° profile page** — unified user view with tabs (Overview, CV, Bookings, Emails, Messages, Analytics). Tappable names in Funnel Manager/User Management/Bookings → User360. See section 3f above.
+12. Add Booking Invitations screen (select students, send emails)
+13. Add auto-welcome toggle for submissions
+14. Add user management CRUD with permission toggles
+15. Add availability management UI (day/time/buffer/max/tier)
+16. Add calendar blocks management
+17. Read `call_invitations` by email for student portal banner
+18. Add `sendBookingVerifyCode` CF call for booking cancellation verification
+19. Read `couponCode` from bookings to display coupon used
 
 ### Nice to Have (P3)
-19. Add send invitation/CV feedback buttons in user list
-20. Read `site_config/roles` for custom roles
-21. Add quotation builder
-22. Add contact submissions reply
-23. Add Link Manager to Settings tab
-24. Add Proposals screen to Bookings & Services tab
+20. Add send invitation/CV feedback buttons in user list
+21. Read `site_config/roles` for custom roles
+22. Add quotation builder
+23. Add contact submissions reply
+24. Add Link Manager to Settings tab
+25. Add Proposals screen to Bookings & Services tab
 
-### No Action Needed (web-only, admin-only)
-- User 360° profile page — admin web tool, no iOS implementation needed
-- Booking Management UI enhancements — admin web tool
+### No Action Needed (web-only)
+- Booking Management UI enhancements — admin web tool (but `couponCode` field is available for iOS to read)
 - "My Bookings" removal from public nav — web-only change
 - Email Center modal — admin web tool
 
@@ -364,12 +410,13 @@ struct BookingCalendarConfig: Codable {
 
 ## Part 5: Admin-Only Guarantee
 
-All July 24 evening changes (User 360, booking UI, nav changes) are **admin portal tools**. None affect:
+All July 24 evening changes are **admin portal tools**. None affect:
 - Public website pages (Discover, Courses, Membership, etc.)
 - Candidate/Student portal experience
 - Client portal experience
 - Firestore schemas or security rules (except `couponCode` field which is optional/additive)
-- iOS app functionality
+
+**iOS recommendation:** User 360° profile page is recommended for iOS implementation (see section 3f). Booking Management `couponCode` field is available for iOS to read. All other evening changes are web-only.
 
 ---
 
