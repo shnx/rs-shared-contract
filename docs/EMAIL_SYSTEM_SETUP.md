@@ -78,7 +78,7 @@ If you prefer to send emails from the iOS side:
 
 ## Future Plans
 
-1. **Password reset emails** — currently using Firebase Auth's native `sendPasswordResetEmail` (sent from Firebase's default domain). We may switch to Resend for branded password reset emails.
+1. **Password reset emails** — ✅ DONE. Now sent via Resend SMTP with branded template (`sendBrandedPasswordReset` Cloud Function). The reset link points to `the-rs.com/reset-password` (branded page) instead of Firebase's default `firebaseapp.com` domain. This improves email deliverability and avoids junk folder issues.
 2. **Notification emails** — course enrollment, membership expiry, new content alerts
 3. **Bulk emails** — newsletter, announcements (may need Resend's batch API)
 4. **Email templates** — we'll create a shared template system so both platforms use consistent branding
