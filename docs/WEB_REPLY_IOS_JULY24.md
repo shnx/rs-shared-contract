@@ -422,3 +422,205 @@ All July 24 evening changes are **admin portal tools**. None affect:
 
 *Shared in `shared/docs/WEB_REPLY_IOS_JULY24.md`*
 *See also: `docs/IOS_CHANGELOG_JULY24.md` for full technical details*
+
+---
+
+## Part 6: Answers to 16 New iOS Questions (from IOS_QUESTIONS_JULY24.md)
+
+### Q1: Is PayPal the canonical payment method now?
+
+**Answer:** **No single canonical provider.** Three active payment options:
+- **Tap** — Jordan / MENA (Mada, Benefit, KNET, etc.)
+- **Stripe** — Global USD credit cards
+- **PayPal** — Global alternative
+
+The DiscoverPage currently renders **PayPal Hosted Buttons** because PayPal is the fastest path for web, but Tap and Stripe remain fully active. iOS should offer all three (admin-configurable toggle).
+
+---
+
+### Q2: PayPal Hosted Buttons vs PayPal API Orders for iOS?
+
+**Answer:** For iOS, use the **PayPal REST API / Orders v2** directly, or better — call our Cloud Function `createPayPalOrder` and capture via `paypalIPN` webhook.
+
+**Recommended iOS flow:**
+1. Create booking in Firestore (status: `pending`, paymentStatus: `unpaid`)
+2. Call `createPayPalOrder` CF with `bookingId`, `amount`, `currency`, `description`
+3. CF returns `orderId` and `approveUrl`
+4. Open `approveUrl` in `SFSafariViewController`
+5. PayPal redirects to `SITE_URL/discover?paypal=1&booking_id={bookingId}`
+6. `paypalIPN` webhook updates booking to `paid`
+7. iOS listens to booking doc for `paymentStatus == "paid"`
+
+Do NOT use PayPal Hosted Buttons in iOS — that's a web SDK convenience.
+
+---
+
+### Q3: Should iOS keep the Tap admin config?
+
+**Answer:** **Yes.** Tap is the primary MENA gateway. Keep Tap config in iOS admin payments settings. It is still used and maintained.
+
+---
+
+### Q4: Is Stripe deprecated?
+
+**Answer:** **No.** Stripe is active for global USD cards. The comment in `functions/src/index.ts` about Stripe secret key being "commented out" refers to Firebase Secret Manager; the function now reads `stripe_config` from Firestore. iOS should keep Stripe as an option.
+
+---
+
+### Q5: Should `resumeBookingPayment` use PayPal instead of Stripe?
+
+**Answer:** **No, keep it as-is.** `resumeBookingPayment` creates a new Stripe checkout for an existing unpaid booking. If the original booking was PayPal, create a new PayPal order instead. The function should be gateway-agnostic per original payment method. iOS should pick the right CF based on original booking fields (`tapChargeId`, `stripeSessionId`, or missing).
+
+**Rule:**
+- Original had `tapChargeId` → call `createTapCheckout`
+- Original had `stripeSessionId` → call `resumeBookingPayment`
+- Original had PayPal order → call `createPayPalOrder`
+
+---
+
+### Q6: Add `paypalOrderId` to `Booking` schema?
+
+**Answer:** **Yes, add it.** Also fix the `paypalIPN` CF reusing `tapChargeId` — that was a shortcut. Correct fields:
+
+```swift
+struct Booking: Codable {
+    // ...existing fields...
+    var tapChargeId: String?
+    var tapUrl: String?
+    var stripeSessionId: String?
+    var paypalOrderId: String?        // NEW — add this
+    var paypalTransactionId: String?  // NEW — captured from IPN
+    var paymentMethod: String?        // "tap" | "stripe" | "paypal" — recommended
+    var sessionLink: String?
+}
+```
+
+**Web will update:** `paypalIPN` will write `paypalOrderId` and `paypalTransactionId` instead of `tapChargeId`. This is a backend fix; no iOS action beyond adding the fields.
+
+---
+
+### Q7: Email exists detection — `findUserByEmail` vs `fetchSignInMethods`?
+
+**Answer:** Use **`findUserByEmail` querying `systemUsers` by email.** Do NOT rely on `Auth.auth().fetchSignInMethods(forEmail:)` because:
+- Invited users exist in `systemUsers` before they create Firebase Auth accounts
+- Legacy users may have `systemUsers` docs without Firebase Auth yet
+- `systemUsers` is the source of truth for portal profiles
+
+```swift
+func findUserByEmail(_ email: String) async -> SystemUser? {
+    let snap = try? await db.collection("systemUsers")
+        .whereField("email", isEqualTo: email.lowercased())
+        .limit(to: 1)
+        .getDocuments()
+    return snap?.documents.first.flatMap { try? $0.data(as: SystemUser.self) }
+}
+```
+
+---
+
+### Q8: Should iOS add email verification for booking search?
+
+**Answer:** **Yes.** For public (unauthenticated) users searching by email, require a 6-digit code via `sendBookingVerifyCode` before allowing destructive actions (cancel, reschedule). Direct booking ID link is trusted and does not need verification. Logged-in users whose email matches the booking are also trusted.
+
+---
+
+### Q9: Email-only search vs name + email?
+
+**Answer:** **Align to email-only or booking ID.** Firestore `bookings` rules restrict `list` to auth users; public search needs to be email-only (or use the Cloud Function we will build, see Q16). Name filtering is not supported by Firestore and is unnecessary once email verification is in place.
+
+---
+
+### Q10: Should iOS add project selector?
+
+**Answer:** **Yes.** Web portal requires selecting a project before showing tabs. iOS should add a project selector (dropdown or initial screen). This drives tab visibility and permissions. Use `project_members` to determine which projects the user can access.
+
+---
+
+### Q11: Per-project tab visibility for iOS?
+
+**Answer:** **Yes, implement it.** Use `project.type` to filter tabs:
+- `accounting` → Dashboard, Documents, Timeline, Finance tabs
+- `website` → Bookings & Services, People, Website Manager tabs
+- `real_estate` → Riad Portal, Buildings tabs
+
+Admins (`role == "admin"`) can see all tabs; other roles see tabs based on `permissions`.
+
+---
+
+### Q12: Coupon `discountType == "fixed"` — `discountValue` in cents?
+
+**Answer:** **No.** `discountValue` for `fixed` is in **cents of the currency** (e.g. `100` = `$1.00` or `1.0 JOD`). This is the convention. Wait, earlier we said 1 = $0.01. Confirming: **100 = $1.00 USD**. For UI display, divide by 100.
+
+```swift
+let price = Double(discountValue) / 100.0
+```
+
+---
+
+### Q13: `meeting_invitations` vs `meetingInvitations` collection name?
+
+**Answer:** **Firestore collection is `meeting_invitations`** (snake_case). `meetingInvitations` is the TypeScript variable name in `src/utils/database.ts`. iOS should use `meeting_invitations` as the collection path.
+
+---
+
+### Q14: Should iOS implement `slot_overrides`?
+
+**Answer:** **Yes, if you are building admin calendar.** `slot_overrides` allows one-off blocking or adding slots per date (e.g. blocked holiday, extra Saturday session). For public booking flow, iOS only needs to read them and merge with recurring availability. For admin, add CRUD. Priority: **P2**.
+
+---
+
+### Q15: Use `syncBookingToCalendar` CF exclusively?
+
+**Answer:** **Yes.** Use `syncBookingToCalendar` CF exclusively. No client-side Google OAuth needed. It is server-side with Google Service Account, no auth required. Call it for both free and paid bookings after confirmation.
+
+---
+
+### Q16: How to search bookings for unauthenticated users? (CRITICAL)
+
+**Answer:** This is a real issue. Current Firestore rules require `request.auth != null` for `list` on `bookings`, so unauthenticated `whereField("email", isEqualTo:)` will fail.
+
+**Web will fix by building a Cloud Function `findBookingsByEmail`:**
+```swift
+try await Functions.functions(region: "us-central1")
+    .httpsCallable("findBookingsByEmail")
+    .call(["email": email])
+// Returns: [Booking] (array of user's bookings), no auth required
+```
+
+**Why not change Firestore rules?** Allowing public `list` by email would expose booking IDs and names to anyone who guesses an email. The CF will also rate-limit and require email verification code before returning results (optional but recommended).
+
+**iOS action:** Use `findBookingsByEmail` CF for public booking search. For logged-in users, use direct Firestore query `bookings` by `userId` or `email`.
+
+**ETA:** Web will deploy `findBookingsByEmail` within 24h. Until then, iOS can test with a hardcoded auth user or use a test collection.
+
+---
+
+## Part 7: What iOS Team Got Wrong in Their July 24 Status Update
+
+1. **"No new web answer file exists"** — Incorrect. `shared/docs/WEB_REPLY_IOS_JULY24.md` exists and was pushed. It answers the 10 pending July 15 questions and the new User 360 / booking UI changes.
+2. **"Latest web answers are July 9 / July 2"** — Outdated. The latest are `WEB_REPLY_IOS_JULY24.md` and `IOS_CHANGELOG_JULY24.md`.
+3. **"WEB_RESPONSE_IOS_JULY8 says Tap only, but DiscoverPage uses PayPal = conflict"** — July 8 doc is old. The July 24 docs and code clearly support Tap + Stripe + PayPal. No conflict — the system evolved.
+4. **"10 questions from July 15 still open"** — They were answered in `WEB_REPLY_IOS_JULY24.md` Part 1.
+5. **"Need `findBookingsByEmail` CF"** — Correct. This is the only genuinely new critical issue. Web will build it.
+
+---
+
+## Part 8: Updated iOS Action Items (After July 24 Round 2)
+
+### P1 (Must Do)
+1. Switch public booking search to `findBookingsByEmail` CF (when deployed)
+2. Add `paypalOrderId` and `paymentMethod` fields to `Booking` model
+3. Use `createPayPalOrder` CF for PayPal iOS flow
+4. Add `sendBookingVerifyCode` for public booking management
+
+### P2 (Should Do)
+5. Build User 360° profile page
+6. Add project selector to admin portal
+7. Implement per-project tab visibility
+8. Add `SlotOverride` model + repository
+9. Add `slot_groups` and `site_config/booking_settings` integration
+10. Restructure `AdminPortalView` to 4-category tab bar
+
+### P3 (Nice to Have)
+11. Add PayPal / Stripe / Tap payment method toggle in admin payments settings
+12. Add `meeting_invitations` (snake_case) collection path update
