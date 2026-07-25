@@ -91,6 +91,50 @@ iOS currently decodes with `Firestore.Decoder`; if the CF returns plain JSON thi
 
 ---
 
+## 9. Comprehensive web portal documentation request
+
+To bridge the gap between iOS and web, we need a complete inventory of the web admin portal. Please provide:
+
+### 9.1 All admin portal pages/routes
+- List every page/route in the web admin portal (e.g., `/admin/bookings`, `/admin/coupons`, `/admin/service-offerings`, etc.)
+- For each page, provide:
+  - Page name (as shown in UI)
+  - Route path
+  - Navigation hierarchy (which menu section it belongs to)
+
+### 9.2 Data displayed on each page
+- For each page, list:
+  - Which entity/collection it displays (e.g., `bookings`, `coupons`, `serviceOfferings`, `systemUsers`, etc.)
+  - Which fields are shown in the list view
+  - Which fields are shown in the detail view
+  - Any computed/derived fields
+
+### 9.3 Actions available on each page
+- For each page, list all user actions:
+  - CRUD actions (create, read, update, delete)
+  - Custom actions (e.g., approve, reject, reschedule, send verification, sync to calendar, etc.)
+  - Bulk actions (if any)
+  - For each action, specify:
+    - Whether it calls a Cloud Function (and which one)
+    - Request payload shape
+    - Response shape
+    - Any side effects (e.g., updates other documents, sends emails)
+
+### 9.4 Filtering, sorting, and pagination
+- For each list page, specify:
+  - Available filters (which fields, what operators)
+  - Default sort order
+  - Available sort options
+  - Pagination settings (page size, infinite scroll, etc.)
+
+### 9.5 Page-specific business logic
+- Any special rules or workflows per page (e.g., booking status transitions, coupon validation rules, etc.)
+
+### 9.6 Public-facing pages (if any)
+- If there are public pages beyond the booking lookup (e.g., public calendar, public service offerings), document them similarly.
+
+---
+
 ## Action requested from web team
 
 Please reply to the above questions in the same format as `WEB_REPLY_IOS_JULY24.md` so iOS can continue the remaining P2/P3 fixes in the next iteration.
