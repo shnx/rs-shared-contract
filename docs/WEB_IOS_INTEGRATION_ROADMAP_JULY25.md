@@ -22,15 +22,18 @@ If `systemUsers` already exists → show **Sign In** prompt, do not merge.
 ```
 Select slot + coupon
   │
-  ├─ Tap    → createTapCheckout    → open tapUrl
-  ├─ Stripe → createStripeCheckout → open stripeUrl
-  └─ PayPal → createPayPalOrder    → open url in SFSafariViewController
+  ├─ PayPal (primary) → createPayPalOrder → open url in SFSafariViewController
+  │   Resume unpaid   → resumeBookingPayment → open url
+  ├─ Tap (legacy)     → createTapCheckout    → open tapUrl
+  └─ Stripe (legacy)  → createStripeCheckout → open stripeUrl
   │
   Webhook/ipn marks booking paymentStatus = paid
   │
   Poll bookings/{id} until paid
   │
   syncBookingToCalendar(bookingId)
+  │
+  NOTE: No auto confirmation emails — disabled per admin request
 ```
 
 ## 3. Cloud Function cheat sheet
@@ -40,18 +43,22 @@ Select slot + coupon
 | Public email search | `findBookingsByEmail` | None |
 | Send verify code | `sendBookingVerifyCode` | None |
 | Verify code | `verifyBookingCode` | None |
-| Tap pay | `createTapCheckout` | None |
-| Stripe pay | `createStripeCheckout` | None |
-| PayPal pay | `createPayPalOrder` | None |
+| **PayPal pay (primary)** | `createPayPalOrder` | None |
+| **Resume unpaid PayPal** | `resumeBookingPayment` | None |
+| Tap pay (legacy) | `createTapCheckout` | None |
+| Stripe pay (legacy) | `createStripeCheckout` | None |
 | Calendar event | `syncBookingToCalendar` | None |
+| **Password reset** | `sendBrandedPasswordReset` | Admin |
 
 ## 4. iOS implementation order
 
 1. Public search with `findBookingsByEmail` (use JSONDecoder, `_seconds` timestamps).
 2. Verification with `sendBookingVerifyCode` + `verifyBookingCode`.
-3. Payment flows: Tap → Stripe → PayPal.
+3. Payment flows: **PayPal first** (`createPayPalOrder` + `resumeBookingPayment`), then Tap/Stripe as fallback.
 4. `registerFromBooking` and Sign In handling.
-5. Admin portal 4 categories + `user-360`.
+5. **Student Portal** for `candidate`/`student`/`graduate` roles (restricted — no admin tabs).
+6. Admin portal 4 categories + `user-360`.
+7. User Management: add bookings info per user + password reset action.
 
 ## 5. Admin portal 4 categories
 
@@ -76,4 +83,4 @@ Settings
 
 ---
 
-*Use `WEB_REPLY_IOS_JULY25.md` for exact payloads and `WEB_REPLY_IOS_JULY24.md` for the original Q&A.*
+*Use `WEB_REPLY_IOS_JULY25.md` for exact payloads and `WEB_REPLY_IOS_JULY24.md` for the original Q&A. See `IOS_UPDATE_JULY25_PORTAL_CHANGES.md` for the latest portal changes (student portal, PayPal primary, user management, password reset).*
