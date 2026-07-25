@@ -8,7 +8,15 @@ This repo (`rs-shared-contract`) is a **shared data contract** between the iOS a
 
 ## What happened
 
-The iOS app has been significantly enhanced with new budgeting features. This repo documents **everything the web team needs to know** about the database, document shapes, computed values, and a new feature request.
+The iOS app has been significantly enhanced with new budgeting features **and the TENA public booking + admin portal**. This repo documents **everything the web team needs to know** about the database, document shapes, computed values, and new feature requests.
+
+### New: public booking search & registration (iOS)
+- iOS public site now has a **"حجوزاتي" (My Bookings)** section.
+- Visitors search existing bookings by **email + partial/full name**.
+- Search fetches by email and filters client-side by partial name match (Firestore has no `LIKE` query).
+- Once a booking is found, the user can register an account with **username + password** from the booking card.
+- `AuthManager.registerFromBooking()` creates a Firebase Auth user, a `SystemUser` document, and links **all existing bookings with that email** to the new `userId`.
+- Full iOS admin portal (`AdminPortalView`) mirrors the web admin sections (Bookings, Calendar, Payments, Coupons, People, Services, Courses, Website, Settings).
 
 ---
 
@@ -89,6 +97,30 @@ Categories may now be stored as `"Broad > Sub"` (e.g. `"Hardware > Components"`)
 - **Spending forecast** — projected spend for planned periods based on historical data
 
 All formulas are documented in `docs/DATA_CONTRACT.md`.
+
+---
+
+## Questions for the TENA / web developer
+
+1. Public booking search flow
+   - Should the web public site implement the same "search by email + partial name" flow, or is iOS meant to be the primary entry point?
+   - Are bookings from web stored in the same collection (and with the same fields) so the same `searchByNameAndEmail` logic applies?
+
+2. Account registration from booking
+   - Is the web side expected to allow users to register (username + password) directly from a booking as well, or only from a normal sign-up page?
+   - Should registration trigger an email verification step? If so, do you want Firebase Auth email verification enabled for both platforms?
+
+3. Booking → user linkage
+   - When a user registers, iOS links **all bookings with the same email** to the new `userId`. Should this be handled by a Cloud Function so it is consistent across iOS and web?
+   - If a booking email is later updated on the web admin, should it stay linked to the original `userId` or be re-linked automatically?
+
+4. Username & password rules
+   - What are the canonical username rules (min/max length, allowed characters, case sensitivity, uniqueness check)?
+   - What password requirements should both platforms enforce (length, special characters, etc.)?
+
+5. Admin portal parity
+   - Is the web admin data (collections, field names, role definitions) already matching the iOS `AdminModels.swift` exactly, or are there schema differences we need to reconcile?
+   - Which sections of the admin portal are currently live on web and should be considered the source of truth?
 
 ---
 
