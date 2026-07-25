@@ -291,4 +291,29 @@ The following views are referenced in `AdminPortalView` but need implementation:
 
 ---
 
+## 11. Web Team Communication
+
+### 11.1 Questions Sent (July 25)
+- Documented in `IOS_REQUEST_TO_WEB_JULY25.md`
+- Includes request for comprehensive web portal documentation (pages, routes, data, actions)
+
+### 11.2 Responses Received (July 25)
+- Documented in `WEB_REPLY_IOS_JULY25.md`
+- All 8 questions answered
+- Cloud Functions confirmed deployed
+- Admin portal 4-category structure confirmed
+
+### 11.3 Additional Web Documents (July 25)
+- `WEB_IOS_INTEGRATION_ROADMAP_JULY25.md`: Big-picture implementation guide with CF cheat sheet and implementation order
+- `IOS_PORTAL_ALIGNMENT_JULY25.md`: Maps web portal categories to iOS screens, specifies web as source of truth
+
+### 11.4 Outstanding Questions
+- **Q9 (Portal Documentation):** Awaiting web team response on comprehensive portal pages, routes, data, and actions
+- **Category Structure Discrepancy:**
+  - `WEB_REPLY_IOS_JULY25.md` specifies 4 categories: Dashboard, People, Bookings & Services, Settings
+  - `IOS_PORTAL_ALIGNMENT_JULY25.md` mentions 6 categories: Dashboard, People, Bookings & Services, Operations, Website, Settings
+  - Need clarification on which structure is current
+
+---
+
 *Last updated: July 25, 2026*
