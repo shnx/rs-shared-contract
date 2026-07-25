@@ -78,7 +78,7 @@ struct ServiceOffering: Codable {
 
 ### Q4: `bookings` schema — align to canonical?
 
-**Answer:** ✅ **Yes, align.** Drop `consultationId`, `tier`, `priceEUR`, `paymentMethod`, `invoiceUrl`. The canonical booking schema is:
+**Answer:** ✅ **Yes, align.** Drop `consultationId`, `tier`, `priceEUR`, `invoiceUrl`. Keep **`paymentMethod`** with the new gateway semantics (`"tap"` | `"stripe"` | `"paypal"` | `"manual"` | `"free"`). Add `paypalOrderId` and `paypalTransactionId`. The canonical booking schema is:
 
 ```swift
 struct Booking: Codable {
