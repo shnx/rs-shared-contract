@@ -153,7 +153,7 @@ enrolled → "Enrolled" (emerald)
 **Data loaded on mount:**
 - `bookingDB.getAll()` — for slot availability
 - `firebaseDB.getById('payment_config', 'booking')` — default price
-- `getBookingCalendarConfig()` — calendar config (available days, Berlin hours, slot interval, max date, block dates, limited slots mode)
+- `getBookingCalendarConfig()` — calendar config (available days, Berlin hours, slot interval, max date, block dates, limited slots mode, **minBookingLeadHours**)
 - `serviceOfferingDB.getAll()` — active service offerings filtered by audience
 - `slotOverrideDB.getAll()` — slot overrides (add/remove/block)
 - `calendarBlockDB.getAll()` — recurring weekly blocks
@@ -164,9 +164,10 @@ enrolled → "Enrolled" (emerald)
 #### Step 1: Calendar
 - Month calendar with navigation (prev/next month)
 - Days are enabled/disabled based on:
-  - `isDateBlocked`: past dates, after maxDate, within block range
+  - `isDateBlocked`: dates within **minBookingLeadHours** from now (default 24h = no same-day bookings), after maxDate, within block range
   - `isDayAvailable`: available days config + slot overrides (add/remove)
   - Day availability level: `open` (green dot), `limited` (amber dot), `full` (no dot)
+- **Min booking lead time:** `calendarConfig.minBookingLeadHours` (default: 24). A date is blocked if `date < (now + minBookingLeadHours hours)`. This is configurable from Calendar Management settings (Firestore: `site_config/booking_settings` field `bookingMinLeadHours`). Set to 0 to allow instant/same-day booking.
 - On date select → show available time slots
 - **Slot generation:** Berlin timezone hours (default 10:00–12:00), converted to user's local time. Interval from offering duration or config (default 30 min)
 - **Slot availability:** Check against Google Calendar events, existing bookings, slot overrides (block type), and recurring calendar blocks
@@ -534,7 +535,7 @@ Shows:
 | `slot_overrides` | Book Session | `type (add/remove/block), date, endDate, startTime, endTime` |
 | `calendar_blocks` | Book Session | `dayOfWeek, startTime, endTime` |
 | `payment_config` | Book Session | `defaultPrice` |
-| `site_config` | Config | `candidate_config (flags), admin_emails[]` |
+| `site_config` | Config | `candidate_config (flags), admin_emails[], booking_settings: { bookingMinLeadHours, bookingMaxDate, bookingAvailableDays, bookingBerlinHourStart, bookingBerlinHourEnd, bookingSlotIntervalMinutes, bookingFixedPrice, bookingLimitedSlotsMode, bookingMaxSlotsPerDay }` |
 
 ---
 
