@@ -88,6 +88,22 @@ The student portal (`StudentPortal.tsx`) has these tabs. Each tab is controlled 
 | `candidateShowInbox` | Inbox | true |
 | `candidateShowSettings` | Settings | true |
 
+### Onboarding Banner (Social Sign-In Users)
+
+**When:** A Google/Apple sign-in user (`authProvider === 'google' || 'apple'`) who has **no CV uploaded** AND/OR **no bookings** enters the portal.
+
+**What to show:**
+- Gradient banner (blue → indigo) with Sparkles icon
+- Title: "Welcome to your portal! Let's get you set up."
+- Subtitle: "Complete these steps to make the most of your account:"
+- **Action cards** (only show the ones that apply):
+  - **Upload your CV** — if `!hasCV` (no `contact.cvBase64` and no `submission.cvBase64`). Tapping navigates to CV tab.
+  - **Book a session** — if `!hasBooking` (no bookings for this email). Tapping navigates to Book Session tab.
+- **Dismiss:** X button in top-right. Stores `rs_onboarding_banner_{userId}` in localStorage. Banner does not reappear once dismissed.
+- **Auto-hide:** Once both CV and booking exist, banner no longer shows (even if not dismissed).
+
+**iOS equivalent:** Show this as a dismissible card/alert at the top of the portal home, or as a guided onboarding overlay on first portal open. Use `UserDefaults` for the dismissed flag.
+
 ---
 
 ### 1. Submission Tab
