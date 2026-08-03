@@ -2,6 +2,13 @@
 
 This document addresses **known schema conflicts** between iOS and web implementations and establishes **canonical decisions** for each.
 
+> **Code audit, Aug 3, 2026.** The resolutions below were written from the docs and
+> CHANGELOGs, and several described a code state that no longer matches the
+> repositories. Every item was re-checked against `RS_website@claude/tender-varahamihira-acb36d`
+> and `RS-IOS-APP@devin-1`; the findings are recorded per item as **Audit (Aug 3)**.
+> Net result: only item 6 (canonical `bookings` shape) is genuinely open in code —
+> items 1 and 2 need a *data* migration, not a code change.
+
 ---
 
 ## Conflicts Found & Resolutions
@@ -22,9 +29,18 @@ This document addresses **known schema conflicts** between iOS and web implement
 - iOS: Update to read `timeline` only (no fallback)
 - Reason: v1.4.0 CHANGELOG declared the rename; now enforce it
 
+**Audit (Aug 3)**: Both code-side actions are already satisfied — web has **zero**
+`timeline_entries` references, and iOS Swift reads no timeline collection at all
+(`ProjectsView.swift` only uses "Timeline" as a section title; there is no
+fallback to remove). Web reads/writes `timeline` from `Timeline.tsx`,
+`AccountingHub.tsx`, `Budget.tsx` and `sharedBudgetClient.ts`.
+What remains is data, not code: the 67 achievement docs still live in
+`timeline_entries`, which nothing now reads, so they are invisible in both apps.
+
 **Action**:
-- [ ] Web: Audit code for `timeline_entries` references, update to `timeline`
-- [ ] iOS: Remove `timeline_entries` fallback, use `timeline` only
+- [x] Web: audit code for `timeline_entries` references — none exist
+- [x] iOS: remove `timeline_entries` fallback — no timeline reads in Swift
+- [ ] **Migrate the 67 `timeline_entries` docs into `timeline`**, then delete the old collection
 - [ ] Update CHANGELOG with audit results
 
 ---
@@ -44,10 +60,17 @@ This document addresses **known schema conflicts** between iOS and web implement
 - iOS: Stop reading `ady_crm`; stop prefixing new CRM writes
 - Reason: Follows convention (unprefixed = web-canonical), avoids split reads
 
+**Audit (Aug 3)**: No Swift file references `ady_crm` — the only hits are in iOS
+*markdown docs*. Web already reads and writes `crm_contacts` exclusively
+(`database.ts:1585-1626`); its one leftover is the unused constant
+`CRM_LEADS: 'ady_crm'` at `database.ts:62`. So the split read no longer exists in
+code, and again only the data migration is outstanding.
+
 **Action**:
-- [ ] iOS: Migrate existing `ady_crm` docs to `crm_contacts` (cloud function or manual)
-- [ ] iOS: Update code to write `crm_contacts` only, add optional `source` field
-- [ ] Web: Confirm `crm_contacts` schema supports both workflows
+- [ ] **Migrate any existing `ady_crm` docs to `crm_contacts`** (cloud function or manual)
+- [x] iOS: code writes `crm_contacts` only
+- [ ] Web: drop the dead `CRM_LEADS: 'ady_crm'` constant; add the optional `source` field if the workflows need distinguishing
+- [ ] Update iOS docs that still describe `ady_crm` as the CRM collection
 - [ ] Update CHANGELOG with migration approach
 
 ---
@@ -80,10 +103,17 @@ This document addresses **known schema conflicts** between iOS and web implement
 - Web should use same schema if implementing availability
 - Reason: Google Calendar integration requires recurrence patterns; timestamps are inflexible
 
+**Audit (Aug 3)**: "Web: Not found in code" is wrong — web implements availability
+and already uses this exact schema: `AvailabilityManagement.tsx` edits
+`dayOfWeek` / `startTime` / `endTime` / `bufferMinutes` / `maxBookingsPerDay` /
+`priceTier`, alongside `SlotOverridesManagement.tsx`, `CalendarBlocksManagement.tsx`,
+`TimeSlotConfigManagement.tsx` and `PortalBookingPage.tsx`. The platforms are
+already aligned; this is a confirmation, not a target.
+
 **Action**:
 - [ ] Update CHANGELOG to remove "conflict" — iOS recurrence model is canonical
-- [ ] Update DATA_CONTRACT.md to document `availability` collection schema (recurring weekly)
-- [ ] If web needs availability, use iOS schema as reference
+- [ ] Update DATA_CONTRACT.md to document `availability` collection schema (recurring weekly), citing the web implementation as the reference
+- [x] Web availability exists and matches the canonical schema
 
 ---
 
@@ -159,7 +189,7 @@ This document addresses **known schema conflicts** between iOS and web implement
 
 ### 7. **Google Sign-In on iOS**
 
-**Status**: ⚠️ **Code-ready, but compilation will fail**
+**Status**: ✅ **Done** — RS-IOS-APP `792543e` (Aug 3)
 
 **Current state**:
 - `LoginView.swift`: "Sign in with Google" button added
@@ -168,39 +198,52 @@ This document addresses **known schema conflicts** between iOS and web implement
 
 **Resolution**: ✅ **Add GoogleSignIn SPM package to Xcode project**
 
+**Audit (Aug 3)**: All code actions landed in `792543e`, which also fixed a latent
+`accessToken.expirationDate` optional-comparison error in
+`GoogleCalendarService.swift` and re-declared `CFBundleLocalizations` (en/ar),
+which stopped reaching the bundle once `INFOPLIST_FILE` was set. Debug and Release
+both build.
+
 **Action**:
-- [ ] iOS dev (manual Xcode step): Add `https://github.com/google/GoogleSignIn-iOS` as SPM package
-- [ ] iOS dev: Add URL scheme `com.googleusercontent.apps.531306594290-a6f79g782krg2cnkqnmf6oee3ju3pncp` to Info.plist
-- [ ] Verify Firebase Console has Google sign-in provider enabled
-- [ ] Commit rsApp.swift fix
+- [x] iOS: `GoogleSignIn-IOS` 7.1.0 SPM package added (`GoogleSignIn` + `GoogleSignInSwift`)
+- [x] iOS: URL scheme `com.googleusercontent.apps.531306594290-a6f79g782krg2cnkqnmf6oee3ju3pncp` added via a real `Info.plist`
+- [x] iOS: `rsApp.swift` OAuth URL handler committed
+- [ ] Verify Firebase Console has Google sign-in provider enabled (console-side, not verifiable from code)
 
 ---
 
 ## Summary Table
 
-| Issue | Canonical Decision | Status |
+| Issue | Canonical Decision | Status (audited Aug 3) |
 |---|---|---|
-| `timeline` vs `timeline_entries` | Use `timeline` everywhere | 🔴 Action needed |
-| `ady_crm` vs `crm_contacts` | Use `crm_contacts` only | 🔴 Action needed |
+| `timeline` vs `timeline_entries` | Use `timeline` everywhere | ✅ Code aligned · 🔴 67 docs still to migrate |
+| `ady_crm` vs `crm_contacts` | Use `crm_contacts` only | ✅ Code aligned · 🔴 data migration + dead constant |
 | `transactions` + `ady_transactions` | Keep both, merge as-is | ✅ Working |
-| Availability schema | Recurring weekly (dayOfWeek/startTime/endTime) | ✅ Canonical |
+| Availability schema | Recurring weekly (dayOfWeek/startTime/endTime) | ✅ Both platforms already match |
 | Booking pricing (USD vs JOD) | Intentional split — valid | ✅ Canonical |
-| Booking schema fields | Merge iOS + web schemas | 🔴 Action needed |
-| Google Sign-In (iOS) | Add SPM package + URL scheme | 🔴 Action needed |
+| Booking schema fields | Merge iOS + web schemas | 🔴 Only genuinely open code item |
+| Google Sign-In (iOS) | Add SPM package + URL scheme | ✅ Done — `792543e` |
 
 ---
 
-## Next Steps
+## Next Steps (revised after the Aug 3 audit)
 
-1. **Update Firestore** if needed (CRM migration `ady_crm` → `crm_contacts`)
-2. **Update iOS code** to use canonical collection names
-3. **Update web code** to use canonical collection names
-4. **Add missing SPM package** to iOS Xcode project (manual step)
-5. **Merge PRs** (#9 booking funnel) with confirmed schemas
-6. **Update CHANGELOG** to reflect resolutions
-7. **Test both platforms** with synchronized code
+1. **Migrate Firestore data** — `timeline_entries` → `timeline` (67 docs, currently
+   unreachable from either app), and any `ady_crm` → `crm_contacts`. Both are data
+   migrations; the code on both platforms is already on the canonical names.
+2. **Adopt the canonical `bookings` shape** (item 6) — the one open code item.
+3. **Document the `availability` schema** in DATA_CONTRACT.md, using the existing web
+   implementation as the reference.
+4. **Tidy stale references** — the dead `CRM_LEADS: 'ady_crm'` constant in web
+   `database.ts`, and the iOS markdown docs that still name `ady_crm`.
+5. **Update CHANGELOG** to reflect resolutions and this audit.
+6. **Land the long-lived branches** — this contract describes behaviour that only
+   exists on `RS_website@claude/tender-varahamihira-acb36d` (255 commits ahead of
+   `main`) and `RS-IOS-APP@devin-1` (137 ahead). Until those merge, `main` on both
+   apps does not implement anything here.
 
 ---
 
 *Document prepared: Aug 2, 2026*
-*Next review: After schema alignment PRs merge*
+*Code-audited: Aug 3, 2026*
+*Next review: After the data migrations and the `bookings` schema change land*
