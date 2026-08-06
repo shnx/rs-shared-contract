@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/service-offering.json",
+  "title": "ServiceOffering",
+  "description": "An admin-managed consultation/service the visitor can book. Stored in the 'service_offerings' collection (same name on web + iOS). USD funnel pricing (see BOOKING_SYSTEM_CANONICAL.md).",
+  "type": "object",
+  "required": ["id", "name", "type", "audience", "billing", "priceUSD", "durationMinutes", "isActive"],
+  "properties": {
+    "id": { "type": "string", "description": "Doc id (also the stable slug, e.g. 'coffee_time')" },
+    "name": { "type": "string", "description": "English display name, e.g. 'Coffee Time'" },
+    "nameAr": { "type": ["string", "null"], "description": "Arabic display name" },
+    "description": { "type": "string" },
+    "descriptionAr": { "type": ["string", "null"] },
+    "type": {
+      "type": "string",
+      "enum": ["coffee_time", "curriculum_builder", "course_access", "company_assessment"],
+      "description": "Stable service type key"
+    },
+    "audience": { "type": "string", "enum": ["student", "company"] },
+    "billing": {
+      "type": "string",
+      "enum": ["one_time", "monthly", "hourly"],
+      "description": "one_time = single session, monthly = membership, hourly = priced per hour"
+    },
+    "priceUSD": { "type": "number", "description": "Current price in USD" },
+    "originalPriceUSD": { "type": ["number", "null"], "description": "Pre-discount price, shown struck-through" },
+    "priceMaxUSD": { "type": ["number", "null"], "description": "Upper bound for ranged pricing (e.g. company assessment $50-$100/hr)" },
+    "durationMinutes": { "type": "number", "description": "Session length; 0 for membership plans without a fixed slot" },
+    "requiresScheduling": { "type": ["boolean", "null"], "description": "true if the offering books a specific time slot (default true for one_time/hourly, false for monthly)" },
+    "features": { "type": ["array", "null"], "items": { "type": "string" }, "description": "Bullet points shown on the offering card" },
+    "featuresAr": { "type": ["array", "null"], "items": { "type": "string" } },
+    "isActive": { "type": "boolean" },
+    "sortOrder": { "type": ["number", "null"] },
+    "createdAt": { "type": ["string", "number", "object", "null"] },
+    "updatedAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/shnx/rs-shared-contract/schemas/availability.json",
+  "title": "AvailabilityRule",
+  "description": "A recurring weekly window of admin availability that the /book calendar expands into concrete bookable slots. Stored in the 'availability' collection (same name on web + iOS). Web admin writes; iOS reads. See BOOKING_SYSTEM_CANONICAL.md.",
+  "type": "object",
+  "required": ["id", "dayOfWeek", "startTime", "endTime"],
+  "properties": {
+    "id": { "type": "string", "description": "Doc id" },
+    "dayOfWeek": { "type": "number", "minimum": 0, "maximum": 6, "description": "0 = Sunday .. 6 = Saturday" },
+    "startTime": { "type": "string", "description": "24h local time, e.g. '10:00'" },
+    "endTime": { "type": "string", "description": "24h local time, e.g. '18:00'" },
+    "slotMinutes": { "type": ["number", "null"], "description": "Length of each generated slot. Default 30." },
+    "bufferMinutes": { "type": ["number", "null"], "description": "Gap between slots. Default 15." },
+    "maxBookingsPerDay": { "type": ["number", "null"], "description": "Cap on bookings per day. Default 5." },
+    "timezone": { "type": ["string", "null"], "description": "IANA tz for the times, e.g. 'Asia/Amman'. Default 'Asia/Amman'." },
+    "isActive": { "type": ["boolean", "null"], "description": "Default true" },
+    "createdAt": { "type": ["string", "number", "object", "null"] }
+  }
+}

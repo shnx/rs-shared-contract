@@ -16,6 +16,10 @@ This repository is the **single source of truth** for the data contract between 
 | `schemas/pdf-receipt-meta.json` | JSON Schema for `ady_pdf_meta` |
 | `schemas/shared-view.json` | JSON Schema for `sharedViews` (new — for shareable links) |
 | `schemas/category-taxonomy.json` | Machine-readable category taxonomy with keywords |
+| `docs/BOOKING_SYSTEM_CANONICAL.md` | **Source of truth** for booking + services (USD pricing, data model) |
+| `schemas/service-offering.json` | JSON Schema for `service_offerings` documents |
+| `schemas/booking.json` | JSON Schema for `bookings` documents |
+| `schemas/availability.json` | JSON Schema for `availability` documents |
 | `CHANGELOG.md` | Record breaking schema changes here |
 
 ## How to use
